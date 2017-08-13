@@ -1,6 +1,6 @@
 # dcos_devops
 Just for the operator of DCOS.
-# Adminset
+# DevOps
 <img src="https://travis-ci.org/guohongze/adminset.svg?branch=master"></img> 
 <img src="https://img.shields.io/hexpm/l/plug.svg"></img>
 <br>
