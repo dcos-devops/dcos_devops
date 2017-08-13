@@ -1,0 +1,200 @@
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>告警展示</title>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://echarts.baidu.com/dist/echarts.min.js"></script>
+<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="shortcut icon" href="{{ url_for('static', filename='shield.ico') }}" type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename='shield.ico') }}" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+<script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body id="body">
+{% include "_navbar.html" %}
+<div style="width: 200px; height:20px;" id="div1">
+    <form>
+        <select id="level" name="warning-level" class="form-control">
+            <option>--- 请选择告警级别 ---</option>
+        {% for level in levels %}
+            <option>{{ level[0] }}</option>
+        {% endfor %}
+        </select>
+    </form>
+</div>
+<div style="width: 200px; height:20px;" id="div2">
+    <form>
+        <select id="ip" name="ip" class="selector2 form-control">
+            <option>--- 请选择主机IP ---</option>
+        </select>
+    </form>
+</div>
+<br/>
+<br/>
+<div id="main" style="width: 1200px; height:400px;"></div>
+<div>
+    <table class="table table-striped" id="tb">
+        <thead>
+            <tr>
+                <td>Time</td>
+                <td>IP</td>
+                <td>Service</td>
+                <td>Message</td>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<div>
+    <script>
+    $(document).ready(function(){
+      $("#level").change(function(){
+        var level = $("#level").val();
+        $.get("/get_ip", {'level': level}, function (ret) {
+            var obj = document.getElementById("ip");
+            obj.options.length = 0;
+            var ip_pool = ret.ip;
+            for(var i = 1; i < ip_pool.length + 1; i++){
+                var option = $("<option>").val(ip_pool[i]).text(ip_pool[i]);
+                $(".selector2").append(option)
+            }
+        })
+      });
+    });
+    </script>
+    <script>
+    $(document).ready(function(){
+      $("#ip").change(function(){
+        var level = $("#level").val();
+        var ip = $("#ip").val();
+        $.get("/get_rest_information", {'level': level, 'ip': ip}, function (ret) {
+            $('table tbody').empty();
+            var rest_information_pool = ret.information;
+            for(var i = 0; i < rest_information_pool.length + 1; i++) {
+                var item = "<tr>" +
+                    "<td>" + rest_information_pool[i][0] + "</td>" +
+                    "<td>" + rest_information_pool[i][1] + "</td>" +
+                    "<td>" + rest_information_pool[i][2] + "</td>" +
+                    "<td>" + rest_information_pool[i][3] + "</td>" +
+                    "</tr>";
+                $(".table").append(item)
+            }
+        });
+        $.get("/get_service_time", {'level': level, 'ip': ip}, function (ret){
+            var service_name = ret.service_name;
+            var service_time = ret.service_time;
+            $('#ab').text(service_name);
+            $('#ac').text(service_time);
+
+            var myChart = echarts.init(document.getElementById('main'));
+
+            var dataAxis = service_name;
+            var data = service_time;
+            var yMax = Math.max(service_time);
+            var dataShadow = [];
+
+            for (var i = 0; i < data.length; i++) {
+                dataShadow.push(yMax);
+            }
+
+            option = {
+                title: {
+                    text: '告警次数统计',
+                    subtext: '鼠标点击或滚轮缩放'
+                },
+                tooltip: {},
+                xAxis: {
+                    data: dataAxis,
+                    axisLabel: {
+                        inside: true,
+                        textStyle: {
+                            color: '#fff'
+                        }
+                    },
+                    axisTick: {
+                        show: false
+                    },
+                    axisLine: {
+                        show: false
+                    },
+                    z: 10
+                },
+                yAxis: {
+                    axisLine: {
+                        show: false
+                    },
+                    axisTick: {
+                        show: false
+                    },
+                    axisLabel: {
+                        textStyle: {
+                            color: '#999'
+                        }
+                    }
+                },
+                dataZoom: [
+                    {
+                        type: 'inside'
+                    }
+                ],
+                series: [
+                    { // For shadow
+                        type: 'bar',
+                        itemStyle: {
+                            normal: {color: 'rgba(0,0,0,0.05)'}
+                        },
+                        barGap:'-100%',
+                        barCategoryGap:'40%',
+                        data: dataShadow,
+                        animation: false
+                    },
+                    
+                    {
+                        type: 'bar',
+                        itemStyle: {
+                            normal: {
+                                color: new echarts.graphic.LinearGradient(
+                                    0, 0, 0, 1,
+                                    [
+                                        {offset: 0, color: '#83bff6'},
+                                        {offset: 0.5, color: '#188df0'},
+                                        {offset: 1, color: '#188df0'}
+                                    ]
+                                )
+                            },
+                            emphasis: {
+                                color: new echarts.graphic.LinearGradient(
+                                    0, 0, 0, 1,
+                                    [
+                                        {offset: 0, color: '#2378f7'},
+                                        {offset: 0.7, color: '#2378f7'},
+                                        {offset: 1, color: '#83bff6'}
+                                    ]
+                                )
+                            }
+                        },
+                        data: data
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+
+            var zoomSize = 6;
+            myChart.on('click', function (params) {
+                console.log(dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)]);
+                myChart.dispatchAction({
+                    type: 'dataZoom',
+                    startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
+                    endValue: dataAxis[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
+                });
+            });
+        })
+      });
+    });
+    </script>
+</div>
+</body>
+</html>
