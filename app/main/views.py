@@ -4,11 +4,12 @@ import pymysql
 from app.models import Icinga_info
 from app.db import db_init 
 
+
 @main.route('/', methods=['GET', 'POST'])
 def index():
     sql_info = "SELECT DISTINCT LEVEL from icinga_info"
     levels = db_init.execute_sql(sql_info)
-    return render_template('index_pie.html', levels=levels)
+    return render_template('index.html', levels=levels)
 
 
 @main.route('/get_ip', methods=['GET'])
@@ -24,14 +25,14 @@ def get_ip():
 
 
 @main.route('/get_rest_information', methods=['GET'])
-def get_rest_information():
+def get_table_information():
     level = request.args.get('level')
     ip = request.args.get('ip')
-    rest_information = []
+    table_information = [('Time', 'IP', 'Service', 'Message')]
     rest_information_raw = Icinga_info.query.filter_by(ip=ip, level=level).all()
     for item in rest_information_raw:
-        rest_information.append((item.time, item.ip, item.service, item.message))
-    rest_information_cooked = {"information": rest_information}
+        table_information.append((item.time, item.ip, item.service, item.message))
+    rest_information_cooked = {"information": table_information}
 
     return jsonify(rest_information_cooked)
 
@@ -59,7 +60,17 @@ def get_service_time():
         d.append(a)
         service_name.append(item[0])
         service_time.append((item[1]))
-    print(service_name,service_time)
+    #print(service_name,service_time)
 
     service_information = {"service_name": service_name, "service_time": service_time, "d": d}
     return jsonify(service_information)
+
+
+@main.route('/hello1', methods=['GET', 'POST'])
+def hello1():
+    return render_template("hello1.html")
+
+
+@main.route('/hello2', methods=['GET', 'POST'])
+def hello2():
+    return render_template("hello2.html")
