@@ -1,8 +1,10 @@
 from . import main
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, flash
 import pymysql
 from app.models import Icinga_info
-from app.db import db_init 
+from app.db import db_init
+from ..models import Host, Tag, Host_tag_relation
+from .forms import InputForm
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -33,7 +35,7 @@ def get_table_information():
     for item in rest_information_raw:
         table_information.append((item.time, item.ip, item.service, item.message))
     rest_information_cooked = {"information": table_information}
-
+    print(rest_information_cooked)
     return jsonify(rest_information_cooked)
 
 #    page = request.args.get('page', 1, type=int)
@@ -66,11 +68,67 @@ def get_service_time():
     return jsonify(service_information)
 
 
-@main.route('/hello1', methods=['GET', 'POST'])
-def hello1():
-    return render_template("hello1.html")
-
-
 @main.route('/hello2', methods=['GET', 'POST'])
 def hello2():
     return render_template("hello2.html")
+
+
+@main.route('/v1/cmdb/tag=<string:tag_name_pool>', methods=['GET', 'POST'])
+def get_host_information(tag_name_pool):
+    tag_names = tag_name_pool.split(',')
+    ip_hostname = []
+    for tag_name in tag_names:
+        tag_id = Tag.query.filter_by(tag_name=tag_name).all()[0].id
+        host_ids = Host_tag_relation.query.filter_by(tag_name=tag_id).all()
+        ids = []
+        for host_id in host_ids:
+            ids.append(host_id.host_id)
+        host_informations = []
+        for id in ids:
+            host_informations.append(Host.query.filter_by(id=id).all()[0])
+        for host_information in host_informations:
+            tmp = []
+            ip = host_information.ip
+            host_name = host_information.hostname
+            tmp.append(ip)
+            tmp.append(host_name)
+            ip_hostname.append(tmp)
+    head = ['IP', 'Hostname']
+    return render_template("tag_hostname.html", ip_hostname=ip_hostname, head=head)
+
+
+@main.route('/cmdb/tag', methods=['GET', 'POST'])
+def get_host_information_show():
+    tag_names_database_pool = []
+    tag_names_database = Tag.query.all()
+    for item in tag_names_database:
+        tag_names_database_pool.append(item.tag_name)
+
+    tag_names = None
+    form = InputForm()
+    ip_hostname, head = [], []
+    if form.validate_on_submit():
+        tag_names = form.tag_names.data.split(',')
+        form.tag_names.data = ''
+        for item in tag_names:
+            tag_name = item.strip()
+            if tag_name in tag_names_database_pool:
+                tag_id = Tag.query.filter_by(tag_name=tag_name).all()[0].id
+                host_ids = Host_tag_relation.query.filter_by(tag_name=tag_id).all()
+                ids = []
+                for host_id in host_ids:
+                    ids.append(host_id.host_id)
+                host_informations = []
+                for id in ids:
+                    host_informations.append(Host.query.filter_by(id=id).all()[0])
+                for host_information in host_informations:
+                    tmp = []
+                    ip = host_information.ip
+                    host_name = host_information.hostname
+                    tmp.append(ip)
+                    tmp.append(host_name)
+                    ip_hostname.append(tmp)
+            else:
+                flash('无效的标签名:' + tag_name)
+
+    return render_template("tag_hostname.html", ip_hostname=ip_hostname, form=form, tag_names=tag_names)
