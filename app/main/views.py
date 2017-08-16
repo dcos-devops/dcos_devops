@@ -67,10 +67,6 @@ def get_service_time():
     service_information = {"service_name": service_name, "service_time": service_time, "d": d}
     return jsonify(service_information)
 
-@main.route('/hello1', methods=['GET', 'POST'])
-def hello1():
-    return render_template("hello1.html",mesos=mesos)
-
 
 @main.route('/hello2', methods=['GET', 'POST'])
 def hello2():
