@@ -77,7 +77,6 @@ def hello2():
     dmz_mesos_ips=["20.26.28.22:5050","20.26.28.23:5050","20.26.28.24:5050"]
     dmz_marathon_ips=["20.26.28.25","20.26.28.26"]
     dmz_mesos=[]
-    # mesos=[("mesos-master","http://192.168.0.1:5050","No",1),("mesos-master","192.168.0.2","No",1),("mesos-master","192.168.0.3","No",0)]
     marathon=[]
     dmz_mesos_leader = get_mesos_leader(dmz_mesos_ips)
     for mesosip in dmz_mesos_ips:
