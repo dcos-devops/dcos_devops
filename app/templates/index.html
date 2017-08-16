@@ -76,7 +76,7 @@
           </div>
           <div class="row-fluid">
             <div id="table">
-                <table class="table table-striped" id="tb">
+                <table class="table table-bordered table-striped" id="tb">
                     <thead></thead>
                     <tbody></tbody>
                 </table>
@@ -113,10 +113,10 @@
         $.get("/get_rest_information", {'level': level, 'ip': ip}, function (ret) {
             $('table tbody').empty();
             var rest_information_pool = ret.information;
-            var head =  "<td>" + rest_information_pool[0][0] + "</td>" +
-                        "<td>" + rest_information_pool[0][1] + "</td>" +
-                        "<td>" + rest_information_pool[0][2] + "</td>" +
-                        "<td>" + rest_information_pool[0][3] + "</td>";
+            var head =  "<td>" + "<b>"+ rest_information_pool[0][0]+ "</b>" + "</td>" +
+                        "<td>" + "<b>"+ rest_information_pool[0][1]+ "</b>" + "</td>" +
+                        "<td>" + "<b>"+ rest_information_pool[0][2]+ "</b>" + "</td>" +
+                        "<td>" + "<b>"+ rest_information_pool[0][3]+ "</b>" + "</td>";
             $('table thead').append(head);
             for(var i = 1; i < rest_information_pool.length + 1; i++) {
                 var item = "<tr>" +

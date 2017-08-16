@@ -1,10 +1,9 @@
+from wtforms.validators import Required
 from flask_wtf import Form
-from wtforms import SelectField, SubmitField
+from wtforms import SubmitField, StringField
 
 
-class ChooseForm(Form):
-    warning_level = SelectField(
-        '告警级别',
-        choices=[('确认', '确认'), ('警报', '警报'), ('紧急', '紧急')]
-    )
+class InputForm(Form):
+    tag_names = StringField('标签名(如marathon，用逗号分隔)',
+                            validators=[Required()], default='marathon')
     submit = SubmitField("提交")
