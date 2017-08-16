@@ -112,6 +112,7 @@
         var ip = $("#ip").val();
         $.get("/get_rest_information", {'level': level, 'ip': ip}, function (ret) {
             $('table tbody').empty();
+            $('table thead').empty();
             var rest_information_pool = ret.information;
             var head =  "<td>" + "<b>"+ rest_information_pool[0][0]+ "</b>" + "</td>" +
                         "<td>" + "<b>"+ rest_information_pool[0][1]+ "</b>" + "</td>" +
