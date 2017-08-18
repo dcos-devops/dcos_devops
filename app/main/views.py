@@ -72,8 +72,8 @@ def hello1():
     return render_template("hello1.html",mesos=mesos)
 
 
-@main.route('/hello2', methods=['GET', 'POST'])
-def hello2():
+@main.route('/dcos_cluster', methods=['GET', 'POST'])
+def dcos_cluster():
     dmz_mesos_ips=["20.26.28.22:5050","20.26.28.23:5050","20.26.28.24:5050"]
     dmz_marathon_ips=["20.26.28.25","20.26.28.26"]
     dmz_mesos=[]
@@ -88,7 +88,7 @@ def hello2():
         dmz_mesos.append(info)
     
     # dmz_maraton_leader = get_marathon_leader(dmz_marathon_ips)
-    return render_template("hello2.html",mesos=dmz_mesos,marathon=marathon)
+    return render_template("dcos_cluster.html",mesos=dmz_mesos,marathon=marathon)
 
 class MesosChecker:
     def __init__(self, ip, port):

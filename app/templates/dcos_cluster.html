@@ -17,14 +17,19 @@
     <![endif]-->
 
     <!-- Le fav and touch icons -->
-    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <!--   <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="http://echarts.baidu.com/dist/echarts.min.js"></script>
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="shortcut icon" href="{{ url_for('static', filename='shield.ico') }}" type="image/x-icon">
     <link rel="icon" href="{{ url_for('static', filename='shield.ico') }}" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
-    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+     <script src="http://echarts.baidu.com/dist/echarts.min.js"></script>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='shield.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='shield.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
   </head>
   <body>
     <div class="navbar navbar-fixed-top">
@@ -52,15 +57,71 @@
             {% include "left_navbar.html" %}
         </div><!--/span-->
         <div class="span9">
+        <h1>DCOS集群信息</h1>
+        <br>
           <div class="row-fluid">
-              <h1>hello2</h1>
-
-
+              <ul id="myTab" class="nav nav-tabs">
+                  <li class="active"><a href="#mesos" data-toggle="tab">MESOS集群</a></li>
+                  <li><a href="#marathon"" data-toggle="tab">MARATHON集群</a></li>
+                  <li><a href="#zookeeper" data-toggle="tab">ZOOKEEPER集群</a></li>
+              </ul>
           </div>
-          <div class="row-fluid">
-              <h1>hello2</h1>
+          <div id="myTabContent" class="tab-content">
+  <div class="tab-pane fade in active" id="mesos">
+  <table class="table">
+   <thead>
+      <tr>
+         <th>服务</th>
+         <th>IP</th>
+         <th>是否为Leader</th>
+         <th>是否健康</th>
+      </tr>
+   </thead>
+   <tbody>
+   {% for item in mesos %}
+      <tr>
+         <td>{{item.0}}</td>
+         <td><a href={{item.1}}>{{item.1}}</a></td>
+         <td>{{item.2}}</td>
+         {%if not item.3%}
+         <td>Unhealthy</td>
+         {%else%}
+         <td>Healthy</td>
+         {%endif%}
+      </tr>
+      {%endfor%}
+   </tbody>
+</table>
 
-          </div><!--/row-->
+
+  </div>
+  <div class="tab-pane fade" id="marathon">
+    <p>marathon。</p>
+  </div>
+  <div class="tab-pane fade" id="zookeeper">
+    <p>jMeter </p>
+  <table class="table">
+  <caption>基本的表格布局</caption>
+   <thead>
+      <tr>
+         <th>名称</th>
+         <th>城市</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td>Tanmay</td>
+         <td>Bangalore</td>
+      </tr>
+      <tr>
+         <td>Sachin</td>
+         <td>Mumbai</td>
+      </tr>
+   </tbody>
+</table>
+  
+  </div>
+</div>
           <hr>
      <footer>
         <p>&copy; Company DNT</p>
