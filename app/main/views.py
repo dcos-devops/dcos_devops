@@ -35,7 +35,7 @@ def get_table_information():
     for item in rest_information_raw:
         table_information.append((item.time, item.ip, item.service, item.message))
     rest_information_cooked = {"information": table_information}
-    print(rest_information_cooked)
+#    print(rest_information_cooked)
     return jsonify(rest_information_cooked)
 
 #    page = request.args.get('page', 1, type=int)
@@ -63,7 +63,6 @@ def get_service_time():
         service_name.append(item[0])
         service_time.append((item[1]))
     #print(service_name,service_time)
-
     service_information = {"service_name": service_name, "service_time": service_time, "d": d}
     return jsonify(service_information)
 
@@ -142,14 +141,16 @@ def get_host_information(tag_name_pool):
         for id in ids:
             host_informations.append(Host.query.filter_by(id=id).all()[0])
         for host_information in host_informations:
-            tmp = []
+            tmp = {}
             ip = host_information.ip
             host_name = host_information.hostname
-            tmp.append(ip)
-            tmp.append(host_name)
+            tmp['ip'] = ip
+            tmp['host_name'] = host_name
+            tmp['tag_name'] = tag_name
             ip_hostname.append(tmp)
-    head = ['IP', 'Hostname']
-    return render_template("tag_hostname.html", ip_hostname=ip_hostname, head=head)
+    info_ip_hostname = {'info': ip_hostname}
+    json_ip_hostname = json.dumps(info_ip_hostname)
+    return json_ip_hostname
 
 
 @main.route('/cmdb/tag', methods=['GET', 'POST'])
@@ -182,6 +183,7 @@ def get_host_information_show():
                     host_name = host_information.hostname
                     tmp.append(ip)
                     tmp.append(host_name)
+                    tmp.append(tag_name)
                     ip_hostname.append(tmp)
             else:
                 flash('无效的标签名:' + tag_name)
